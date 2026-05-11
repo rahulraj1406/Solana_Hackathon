@@ -213,7 +213,7 @@ export default function Home() {
                   <div className="w-full h-3 bg-black/40 rounded-full overflow-hidden backdrop-blur-md border border-white/5">
                     <div
                       className={`h-full rounded-full transition-all duration-1500 ease-out ${verdictConfig[report.verdict].progress}`}
-                      style={{ width: \`\${Math.max(5, report.score)}%\` }}
+                      style={{ width: `${Math.max(5, report.score)}%` }}
                     />
                   </div>
                   <div className="flex justify-between mt-3 text-[10px] sm:text-xs font-bold text-zinc-500 uppercase tracking-widest">
