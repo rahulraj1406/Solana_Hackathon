@@ -107,7 +107,7 @@ export default function Home() {
         <div className="orb orb-2" />
         <div className="orb orb-3" />
         <div className="fixed inset-0" style={{
-          background: 'radial-gradient(ellipse at 50% 0%, rgba(99,102,241,0.08) 0%, transparent 60%)',
+          background: 'radial-gradient(ellipse at 50% 0%, rgba(249,115,22,0.06) 0%, transparent 60%)',
         }} />
       </div>
 
@@ -123,11 +123,11 @@ export default function Home() {
             Connected to Solana Mainnet
           </div>
           <h1 className="text-6xl sm:text-8xl font-black tracking-tighter mb-5 leading-[0.9]">
-            <span className="bg-gradient-to-b from-white to-zinc-400 bg-clip-text text-transparent">Sol</span>
-            <span className="bg-gradient-to-b from-indigo-400 to-purple-500 bg-clip-text text-transparent">Shield</span>
+            <span className="bg-gradient-to-b from-white to-zinc-400 bg-clip-text text-transparent">Rug</span>
+            <span className="bg-gradient-to-b from-orange-400 to-red-500 bg-clip-text text-transparent">Radar</span>
           </h1>
           <p className="text-base sm:text-lg text-zinc-500 max-w-xl mx-auto leading-relaxed font-light">
-            On-chain token intelligence for Solana. Detect rug pulls before they happen.
+            On-chain threat detection for Solana tokens. Spot rug pulls before they happen.
           </p>
         </div>
 
@@ -149,7 +149,7 @@ export default function Home() {
               onClick={check}
               disabled={loading || !mint}
               className="px-8 py-4 rounded-2xl font-bold text-[15px] disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden group"
-              style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6, #a855f7)' }}
+              style={{ background: 'linear-gradient(135deg, #f97316, #ef4444, #dc2626)' }}
             >
               <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               <span className="relative z-10 flex items-center justify-center gap-2.5">
@@ -347,7 +347,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="relative z-10 w-full mt-auto py-10 text-center border-t border-white/[0.03]">
-        <p className="text-xs text-zinc-600 font-medium">SolShield · Colosseum Frontier Hackathon 2026</p>
+        <p className="text-xs text-zinc-600 font-medium">RugRadar · Colosseum Frontier Hackathon 2026</p>
         <p className="text-[11px] text-zinc-700 mt-1.5 flex items-center justify-center gap-1.5">
           <span>Free</span><span className="text-zinc-800">·</span>
           <span>Open Source</span><span className="text-zinc-800">·</span>
@@ -372,13 +372,13 @@ export default function Home() {
         .orb-1 {
           width: 500px; height: 500px;
           top: -10%; left: 10%;
-          background: rgba(99,102,241,0.12);
+          background: rgba(249,115,22,0.10);
           animation-delay: 0s;
         }
         .orb-2 {
           width: 400px; height: 400px;
           top: 40%; right: 5%;
-          background: rgba(168,85,247,0.08);
+          background: rgba(239,68,68,0.08);
           animation-delay: -7s;
         }
         .orb-3 {
@@ -420,7 +420,7 @@ export default function Home() {
           from { width: 0%; }
         }
         ::selection {
-          background: rgba(99,102,241,0.3);
+          background: rgba(249,115,22,0.3);
           color: white;
         }
         ::-webkit-scrollbar { width: 5px; }
