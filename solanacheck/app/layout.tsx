@@ -8,10 +8,10 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "RugRadar — On-Chain Threat Detection for Solana",
+  title: "Ruglyzer — On-Chain Rug Pull Detection for Solana",
   description:
-    "Spot rug pulls before they happen. Paste any Solana token address and get instant on-chain risk analysis. Free, open-source, no login required.",
-  keywords: ["solana", "rug pull", "token analysis", "crypto safety", "SPL token", "rugradar"],
+    "Scan any Solana token in seconds. Get a real-time risk score powered by on-chain data. Free, open-source, no login required.",
+  keywords: ["solana", "rug pull", "token scanner", "crypto safety", "SPL token", "ruglyzer"],
 };
 
 export default function RootLayout({

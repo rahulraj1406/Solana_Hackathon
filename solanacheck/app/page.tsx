@@ -2,60 +2,44 @@
 import { useState, useEffect } from 'react';
 import { RiskReport } from '@/lib/types';
 
-const checkDescriptions: Record<string, string> = {
-  'mint-authority': 'Can creator print more tokens?',
-  'freeze-authority': 'Can creator freeze your wallet?',
-  'concentration': 'Is token supply well distributed?',
-  'age': 'How long has token existed?',
-  'metadata': 'Is token properly identified?',
+const checkMeta: Record<string, { question: string; icon: string }> = {
+  'mint-authority': { question: 'Can creator inflate supply?', icon: '🪙' },
+  'freeze-authority': { question: 'Can creator freeze wallets?', icon: '🧊' },
+  'concentration': { question: 'Is supply well distributed?', icon: '📊' },
+  'age': { question: 'How established is this token?', icon: '⏳' },
+  'metadata': { question: 'Is token properly identified?', icon: '🏷️' },
 };
 
-function AnimatedScore({ score, verdict }: { score: number; verdict: string }) {
-  const [displayed, setDisplayed] = useState(0);
+function ScoreRing({ score, verdict }: { score: number; verdict: string }) {
+  const [val, setVal] = useState(0);
   useEffect(() => {
-    setDisplayed(0);
-    const duration = 1200;
-    const steps = 40;
-    const increment = score / steps;
-    let current = 0;
-    const timer = setInterval(() => {
-      current += increment;
-      if (current >= score) {
-        setDisplayed(score);
-        clearInterval(timer);
-      } else {
-        setDisplayed(Math.round(current));
-      }
-    }, duration / steps);
-    return () => clearInterval(timer);
+    setVal(0);
+    let cur = 0;
+    const inc = score / 30;
+    const t = setInterval(() => {
+      cur += inc;
+      if (cur >= score) { setVal(score); clearInterval(t); }
+      else setVal(Math.round(cur));
+    }, 30);
+    return () => clearInterval(t);
   }, [score]);
 
-  const radius = 70;
-  const circumference = 2 * Math.PI * radius;
-  const progress = (displayed / 100) * circumference;
-  const verdictColor =
-    verdict === 'safe' ? '#10b981' :
-    verdict === 'caution' ? '#f59e0b' :
-    verdict === 'risky' ? '#f97316' : '#ef4444';
+  const r = 72, circ = 2 * Math.PI * r;
+  const col = verdict === 'safe' ? '#22c55e' : verdict === 'caution' ? '#eab308' : verdict === 'risky' ? '#f97316' : '#ef4444';
 
   return (
-    <div className="relative w-48 h-48 flex items-center justify-center">
-      <svg className="w-48 h-48 -rotate-90" viewBox="0 0 160 160">
-        <circle cx="80" cy="80" r={radius} stroke="rgba(255,255,255,0.05)" strokeWidth="8" fill="none" />
-        <circle
-          cx="80" cy="80" r={radius}
-          stroke={verdictColor}
-          strokeWidth="8"
-          fill="none"
-          strokeLinecap="round"
-          strokeDasharray={circumference}
-          strokeDashoffset={circumference - progress}
-          style={{ transition: 'stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1)' }}
+    <div className="score-ring">
+      <svg width="180" height="180" viewBox="0 0 180 180">
+        <circle cx="90" cy="90" r={r} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="10" />
+        <circle cx="90" cy="90" r={r} fill="none" stroke={col} strokeWidth="10" strokeLinecap="round"
+          strokeDasharray={circ} strokeDashoffset={circ - (val / 100) * circ}
+          transform="rotate(-90 90 90)"
+          style={{ transition: 'stroke-dashoffset 1s cubic-bezier(0.4,0,0.2,1)', filter: `drop-shadow(0 0 8px ${col}40)` }}
         />
       </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-5xl font-black tabular-nums" style={{ color: verdictColor }}>{displayed}</span>
-        <span className="text-xs text-zinc-500 font-semibold tracking-widest uppercase mt-1">/ 100</span>
+      <div className="score-ring-inner">
+        <div className="score-num" style={{ color: col }}>{val}</div>
+        <div className="score-label">/ 100 risk</div>
       </div>
     </div>
   );
@@ -66,366 +50,329 @@ export default function Home() {
   const [report, setReport] = useState<RiskReport | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [showResults, setShowResults] = useState(false);
+  const [show, setShow] = useState(false);
 
-  async function check() {
-    setLoading(true);
-    setError('');
-    setReport(null);
-    setShowResults(false);
+  async function scan() {
+    setLoading(true); setError(''); setReport(null); setShow(false);
     try {
-      const res = await fetch(`/api/check/${mint}`);
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
-      setReport(data);
-      setTimeout(() => setShowResults(true), 50);
-    } catch (e: any) {
-      setError(e.message);
-    } finally {
-      setLoading(false);
-    }
+      const r = await fetch(`/api/check/${mint}`);
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error);
+      setReport(d);
+      setTimeout(() => setShow(true), 60);
+    } catch (e: any) { setError(e.message); }
+    finally { setLoading(false); }
   }
 
-  function handleKeyDown(e: React.KeyboardEvent) {
-    if (e.key === 'Enter' && mint && !loading) check();
-  }
-
-  const verdictStyle: Record<string, { color: string; bg: string; border: string; label: string }> = {
-    safe:    { color: '#10b981', bg: 'rgba(16,185,129,0.08)', border: 'rgba(16,185,129,0.25)', label: 'SAFE' },
-    caution: { color: '#f59e0b', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.25)', label: 'CAUTION' },
-    risky:   { color: '#f97316', bg: 'rgba(249,115,22,0.08)', border: 'rgba(249,115,22,0.25)', label: 'RISKY' },
-    danger:  { color: '#ef4444', bg: 'rgba(239,68,68,0.08)',  border: 'rgba(239,68,68,0.25)',  label: 'DANGER' },
+  const vd: Record<string, { col: string; label: string }> = {
+    safe: { col: '#22c55e', label: 'SAFE' },
+    caution: { col: '#eab308', label: 'CAUTION' },
+    risky: { col: '#f97316', label: 'RISKY' },
+    danger: { col: '#ef4444', label: 'DANGER' },
   };
-
-  const v = report ? verdictStyle[report.verdict] : null;
+  const v = report ? vd[report.verdict] : null;
 
   return (
-    <main className="min-h-screen bg-[#030306] text-white relative flex flex-col items-center overflow-hidden">
-      {/* === ANIMATED BACKGROUND === */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="orb orb-1" />
-        <div className="orb orb-2" />
-        <div className="orb orb-3" />
-        <div className="fixed inset-0" style={{
-          background: 'radial-gradient(ellipse at 50% 0%, rgba(249,115,22,0.06) 0%, transparent 60%)',
-        }} />
-      </div>
+    <main className="page">
+      {/* BG */}
+      <div className="bg-grid" />
+      <div className="bg-glow bg-glow-1" />
+      <div className="bg-glow bg-glow-2" />
 
-      <div className="relative z-10 w-full max-w-3xl mx-auto px-5 py-16 sm:py-24 flex flex-col items-center">
-
-        {/* === HEADER === */}
-        <div className="fade-up text-center mb-14">
-          <div className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-white/[0.03] border border-white/[0.06] text-[13px] text-zinc-500 mb-8 backdrop-blur-xl">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-            </span>
-            Connected to Solana Mainnet
+      <div className="container">
+        {/* HEADER */}
+        <header className="header fade-in">
+          <div className="badge">
+            <span className="badge-dot" />
+            Live on Solana Mainnet
           </div>
-          <h1 className="text-6xl sm:text-8xl font-black tracking-tighter mb-5 leading-[0.9]">
-            <span className="bg-gradient-to-b from-white to-zinc-400 bg-clip-text text-transparent">Rug</span>
-            <span className="bg-gradient-to-b from-orange-400 to-red-500 bg-clip-text text-transparent">Radar</span>
+          <h1 className="logo">
+            <span className="logo-rug">Rug</span>
+            <span className="logo-lyzer">lyzer</span>
           </h1>
-          <p className="text-base sm:text-lg text-zinc-500 max-w-xl mx-auto leading-relaxed font-light">
-            On-chain threat detection for Solana tokens. Spot rug pulls before they happen.
+          <p className="tagline">
+            On-chain rug pull detection. Scan any Solana token in seconds.
           </p>
-        </div>
+        </header>
 
-        {/* === SEARCH === */}
-        <div className="fade-up delay-1 w-full mb-6">
-          <div className="glass-panel p-2 flex flex-col sm:flex-row gap-2">
-            <div className="relative flex-1">
-              <input
-                id="mint-input"
-                value={mint}
-                onChange={(e) => setMint(e.target.value.trim())}
-                onKeyDown={handleKeyDown}
-                placeholder="Paste token mint address..."
-                className="w-full px-5 py-4 bg-transparent border-0 text-white placeholder-zinc-600 focus:outline-none font-mono text-[15px] tracking-wide"
-              />
+        {/* HOW IT WORKS — inspired by RugRadar's 3-step flow */}
+        {!report && !loading && (
+          <div className="steps fade-in d2">
+            <div className="step">
+              <div className="step-num">1</div>
+              <h3>Paste address</h3>
+              <p>Copy any SPL token mint from Birdeye, Jupiter, or pump.fun</p>
             </div>
-            <button
-              id="analyze-button"
-              onClick={check}
-              disabled={loading || !mint}
-              className="px-8 py-4 rounded-2xl font-bold text-[15px] disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden group"
-              style={{ background: 'linear-gradient(135deg, #f97316, #ef4444, #dc2626)' }}
-            >
-              <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              <span className="relative z-10 flex items-center justify-center gap-2.5">
-                {loading ? (
-                  <>
-                    <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                    </svg>
-                    Scanning...
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                    </svg>
-                    Analyze
-                  </>
-                )}
-              </span>
+            <div className="step-arrow">→</div>
+            <div className="step">
+              <div className="step-num">2</div>
+              <h3>We scan on-chain</h3>
+              <p>4 parallel RPC calls hit Solana mainnet via Helius in real-time</p>
+            </div>
+            <div className="step-arrow">→</div>
+            <div className="step">
+              <div className="step-num">3</div>
+              <h3>Get risk score</h3>
+              <p>A 0-100 score with 5 detailed security checks in under 2 seconds</p>
+            </div>
+          </div>
+        )}
+
+        {/* SEARCH */}
+        <div className="search-wrap fade-in d1">
+          <div className="search-box">
+            <input
+              id="mint-input"
+              value={mint}
+              onChange={e => setMint(e.target.value.trim())}
+              onKeyDown={e => e.key === 'Enter' && mint && !loading && scan()}
+              placeholder="Paste token mint address..."
+              className="search-input"
+            />
+            <button id="scan-btn" onClick={scan} disabled={loading || !mint} className="scan-btn">
+              {loading ? (
+                <><span className="spinner" /> Scanning...</>
+              ) : (
+                <>🔍 Scan Token</>
+              )}
             </button>
+          </div>
+          <div className="quick-tokens">
+            <span>Try:</span>
+            {[
+              { l: 'USDC', a: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v' },
+              { l: 'BONK', a: 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263' },
+            ].map(t => (
+              <button key={t.l} onClick={() => setMint(t.a)} className="quick-btn">{t.l}</button>
+            ))}
           </div>
         </div>
 
-        {/* Quick test tokens */}
-        <div className="fade-up delay-2 flex items-center gap-3 mb-14 text-xs">
-          <span className="text-zinc-600">Quick test:</span>
-          {[
-            { label: 'USDC', addr: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', color: '#10b981' },
-            { label: 'BONK', addr: 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263', color: '#f59e0b' },
-          ].map((t) => (
-            <button
-              key={t.label}
-              onClick={() => setMint(t.addr)}
-              className="px-3.5 py-1.5 rounded-lg bg-white/[0.03] border border-white/[0.06] hover:bg-white/[0.06] hover:border-white/[0.12] transition-all duration-300 font-mono text-zinc-400 hover:text-white"
-            >
-              <span className="inline-block w-1.5 h-1.5 rounded-full mr-1.5" style={{ backgroundColor: t.color }} />
-              {t.label}
-            </button>
-          ))}
-        </div>
-
-        {/* === ERROR === */}
+        {/* ERROR */}
         {error && (
-          <div className="fade-up w-full glass-panel p-5 mb-8 flex items-start gap-4" style={{ borderColor: 'rgba(239,68,68,0.2)' }}>
-            <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center flex-shrink-0">
-              <svg className="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-              </svg>
-            </div>
-            <div>
-              <h3 className="text-red-400 font-semibold text-sm mb-0.5">Analysis Failed</h3>
-              <p className="text-red-300/70 text-sm">{error}</p>
-            </div>
+          <div className="error-card fade-in">
+            <span>⚠️</span>
+            <div><strong>Scan failed</strong><p>{error}</p></div>
           </div>
         )}
 
-        {/* === LOADING === */}
+        {/* LOADING */}
         {loading && (
-          <div className="w-full space-y-4">
-            <div className="glass-panel p-10 flex items-center justify-center">
-              <div className="flex flex-col items-center gap-4">
-                <div className="w-12 h-12 border-2 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin" />
-                <p className="text-sm text-zinc-500">Querying Solana blockchain...</p>
-              </div>
-            </div>
+          <div className="loading-card fade-in">
+            <div className="loading-spinner" />
+            <p>Querying Solana blockchain...</p>
+            <p className="loading-sub">Scanning mint authority, freeze authority, holders, age & metadata</p>
           </div>
         )}
 
-        {/* === RESULTS === */}
+        {/* RESULTS */}
         {report && !loading && (
-          <div className={`w-full space-y-5 transition-all duration-700 ${showResults ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+          <div className={`results ${show ? 'results-show' : ''}`}>
 
-            {/* Score Card */}
-            <div
-              className="glass-panel p-8 sm:p-10 relative overflow-hidden"
-              style={{ borderColor: v?.border }}
-            >
-              {/* Glow effect */}
-              <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full blur-[80px] opacity-20" style={{ backgroundColor: v?.color }} />
+            {/* Score card */}
+            <div className="score-card" style={{ borderColor: `${v?.col}25` }}>
+              <div className="score-card-glow" style={{ background: v?.col }} />
 
-              <div className="relative z-10 flex flex-col sm:flex-row items-center gap-8 sm:gap-12">
-                {/* Circular Score */}
-                <AnimatedScore score={report.score} verdict={report.verdict} />
-
-                {/* Token Info */}
-                <div className="flex-1 text-center sm:text-left">
-                  <div
-                    className="inline-block px-4 py-1.5 rounded-lg text-xs font-black tracking-[0.2em] uppercase mb-4"
-                    style={{ backgroundColor: v?.bg, color: v?.color, border: `1px solid ${v?.border}` }}
-                  >
+              <div className="score-card-body">
+                <ScoreRing score={report.score} verdict={report.verdict} />
+                <div className="score-info">
+                  <span className="verdict-badge" style={{ background: `${v?.col}18`, color: v?.col, borderColor: `${v?.col}30` }}>
                     {v?.label}
-                  </div>
-                  <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2">
+                  </span>
+                  <h2 className="token-name">
                     {report.name ?? report.symbol ?? 'Unknown Token'}
                   </h2>
-                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-3">
-                    {report.symbol && (
-                      <span className="px-2.5 py-0.5 bg-white/[0.04] border border-white/[0.08] rounded-md text-sm font-bold text-zinc-300">
-                        ${report.symbol}
-                      </span>
-                    )}
-                    <span className="text-xs text-zinc-600 font-mono bg-white/[0.02] px-2.5 py-0.5 rounded-md border border-white/[0.05]">
-                      {report.mint.slice(0, 6)}...{report.mint.slice(-6)}
-                    </span>
+                  <div className="token-meta">
+                    {report.symbol && <span className="token-symbol">${report.symbol}</span>}
+                    <span className="token-addr">{report.mint.slice(0, 6)}…{report.mint.slice(-6)}</span>
                   </div>
-                  <p className="text-xs text-zinc-600">
-                    Lower score = safer token · Data from Solana mainnet
-                  </p>
+                  <p className="score-hint">Lower score = safer token</p>
                 </div>
               </div>
 
               {/* Score bar */}
-              <div className="relative mt-8 z-10">
-                <div className="w-full h-1.5 bg-white/[0.04] rounded-full overflow-hidden">
-                  <div
-                    className="h-full rounded-full score-bar"
-                    style={{ width: `${Math.max(3, report.score)}%`, backgroundColor: v?.color }}
-                  />
+              <div className="score-bar-wrap">
+                <div className="score-bar-bg">
+                  <div className="score-bar-fill" style={{ width: `${Math.max(3, report.score)}%`, background: v?.col }} />
                 </div>
-                <div className="flex justify-between mt-2 text-[10px] text-zinc-700 uppercase tracking-widest font-bold">
-                  <span>Safe</span>
-                  <span>Caution</span>
-                  <span>Risky</span>
-                  <span>Danger</span>
+                <div className="score-bar-labels">
+                  <span style={{ color: '#22c55e' }}>Safe</span>
+                  <span style={{ color: '#eab308' }}>Caution</span>
+                  <span style={{ color: '#f97316' }}>Risky</span>
+                  <span style={{ color: '#ef4444' }}>Danger</span>
                 </div>
               </div>
             </div>
 
-            {/* Risk Checks */}
-            <div>
-              <h3 className="text-xs font-bold text-zinc-600 uppercase tracking-[0.15em] px-1 mb-4">
-                On-Chain Security Analysis
-              </h3>
-              <div className="grid grid-cols-1 gap-3">
-                {report.checks.map((c, i) => (
-                  <div
-                    key={c.id}
-                    className="check-card glass-panel p-5 flex items-start gap-4 group"
-                    style={{
-                      animationDelay: `${i * 80}ms`,
-                      borderColor: c.passed ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)',
-                    }}
-                  >
-                    {/* Status icon */}
-                    <div
-                      className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform duration-300 group-hover:scale-110"
-                      style={{
-                        backgroundColor: c.passed ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)',
-                        border: `1px solid ${c.passed ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)'}`,
-                      }}
-                    >
-                      {c.passed ? (
-                        <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
-                        </svg>
-                      ) : (
-                        <svg className="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                      )}
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-bold text-[15px] text-white">{c.label}</h4>
-                        <span
-                          className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md"
-                          style={{
-                            color: c.severity === 'high' ? '#ef4444' : c.severity === 'medium' ? '#f59e0b' : '#60a5fa',
-                            backgroundColor: c.severity === 'high' ? 'rgba(239,68,68,0.1)' : c.severity === 'medium' ? 'rgba(245,158,11,0.1)' : 'rgba(96,165,250,0.1)',
-                          }}
-                        >
-                          {c.severity}
-                        </span>
-                      </div>
-                      <p className="text-xs text-zinc-600 italic mb-1.5">
-                        {checkDescriptions[c.id] ?? 'Token security metric'}
-                      </p>
-                      <p className="text-sm text-zinc-400 leading-relaxed">{c.detail}</p>
-                    </div>
+            {/* Checks */}
+            <h3 className="checks-title">Security Analysis — 5 On-Chain Checks</h3>
+            <div className="checks-grid">
+              {report.checks.map((c, i) => (
+                <div key={c.id} className="check-card" style={{ animationDelay: `${i * 80}ms`, borderColor: c.passed ? '#22c55e15' : '#ef444415' }}>
+                  <div className={`check-icon ${c.passed ? 'check-pass' : 'check-fail'}`}>
+                    {c.passed ? '✓' : '✗'}
                   </div>
-                ))}
-              </div>
+                  <div className="check-body">
+                    <div className="check-header">
+                      <span className="check-emoji">{checkMeta[c.id]?.icon}</span>
+                      <h4>{c.label}</h4>
+                      <span className={`sev sev-${c.severity}`}>{c.severity}</span>
+                    </div>
+                    <p className="check-question">{checkMeta[c.id]?.question}</p>
+                    <p className="check-detail">{c.detail}</p>
+                  </div>
+                </div>
+              ))}
             </div>
 
-            {/* Timestamp */}
-            <p className="text-center text-[11px] text-zinc-700 pt-2">
-              Analyzed {new Date(report.timestamp).toLocaleString()} · Real-time data from Solana mainnet via Helius RPC
+            <p className="timestamp">
+              Scanned {new Date(report.timestamp).toLocaleString()} · Real-time from Solana mainnet via Helius RPC
             </p>
           </div>
         )}
       </div>
 
-      {/* Footer */}
-      <footer className="relative z-10 w-full mt-auto py-10 text-center border-t border-white/[0.03]">
-        <p className="text-xs text-zinc-600 font-medium">RugRadar · Colosseum Frontier Hackathon 2026</p>
-        <p className="text-[11px] text-zinc-700 mt-1.5 flex items-center justify-center gap-1.5">
-          <span>Free</span><span className="text-zinc-800">·</span>
-          <span>Open Source</span><span className="text-zinc-800">·</span>
-          <span>No wallet needed</span>
-        </p>
+      {/* FOOTER */}
+      <footer className="footer">
+        <p><strong>Ruglyzer</strong> · Colosseum Frontier Hackathon 2026</p>
+        <p className="footer-sub">Free · Open Source · No wallet needed · Not financial advice</p>
       </footer>
 
-      {/* === GLOBAL STYLES === */}
       <style jsx global>{`
-        @keyframes float {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          25% { transform: translate(40px, -30px) scale(1.05); }
-          50% { transform: translate(-20px, 40px) scale(0.95); }
-          75% { transform: translate(30px, 20px) scale(1.02); }
-        }
-        .orb {
-          position: absolute;
-          border-radius: 50%;
-          filter: blur(100px);
-          animation: float 20s ease-in-out infinite;
-        }
-        .orb-1 {
-          width: 500px; height: 500px;
-          top: -10%; left: 10%;
-          background: rgba(249,115,22,0.10);
-          animation-delay: 0s;
-        }
-        .orb-2 {
-          width: 400px; height: 400px;
-          top: 40%; right: 5%;
-          background: rgba(239,68,68,0.08);
-          animation-delay: -7s;
-        }
-        .orb-3 {
-          width: 600px; height: 600px;
-          bottom: -15%; left: 30%;
-          background: rgba(16,185,129,0.06);
-          animation-delay: -14s;
-        }
-        .glass-panel {
-          background: rgba(255,255,255,0.02);
-          border: 1px solid rgba(255,255,255,0.06);
-          border-radius: 20px;
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
-        }
-        .glass-panel:hover {
-          border-color: rgba(255,255,255,0.1);
-        }
-        .fade-up {
-          animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        .delay-1 { animation-delay: 0.1s; opacity: 0; }
-        .delay-2 { animation-delay: 0.2s; opacity: 0; }
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(24px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        .check-card {
-          animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .check-card:hover {
-          transform: translateY(-2px);
-        }
-        .score-bar {
-          animation: growBar 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        @keyframes growBar {
-          from { width: 0%; }
-        }
-        ::selection {
-          background: rgba(249,115,22,0.3);
-          color: white;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #07070e; color: #fff; -webkit-font-smoothing: antialiased; }
+
+        .page { min-height: 100vh; display: flex; flex-direction: column; align-items: center; position: relative; overflow-x: hidden; }
+
+        /* Background */
+        .bg-grid { position: fixed; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px); background-size: 48px 48px; pointer-events: none; }
+        .bg-glow { position: fixed; border-radius: 50%; filter: blur(120px); pointer-events: none; animation: drift 25s ease-in-out infinite alternate; }
+        .bg-glow-1 { width: 600px; height: 600px; top: -15%; left: 5%; background: rgba(239,68,68,0.07); }
+        .bg-glow-2 { width: 500px; height: 500px; bottom: -10%; right: 5%; background: rgba(249,115,22,0.06); animation-delay: -12s; }
+        @keyframes drift { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(30px,-40px) scale(1.05)} }
+
+        /* Container */
+        .container { position: relative; z-index: 1; width: 100%; max-width: 800px; padding: 48px 20px 32px; display: flex; flex-direction: column; align-items: center; }
+
+        /* Header */
+        .header { text-align: center; margin-bottom: 40px; }
+        .badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 100px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); font-size: 13px; color: #71717a; margin-bottom: 24px; }
+        .badge-dot { width: 8px; height: 8px; border-radius: 50%; background: #22c55e; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.2)} }
+        .logo { font-size: clamp(52px, 12vw, 96px); font-weight: 900; letter-spacing: -3px; line-height: 1; margin-bottom: 16px; }
+        .logo-rug { background: linear-gradient(180deg, #fff 30%, #a1a1aa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .logo-lyzer { background: linear-gradient(180deg, #fb923c, #ef4444); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .tagline { font-size: 17px; color: #52525b; max-width: 440px; line-height: 1.6; font-weight: 300; }
+
+        /* Steps */
+        .steps { display: flex; align-items: stretch; gap: 12px; width: 100%; margin-bottom: 36px; }
+        .step { flex: 1; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 20px; text-align: center; transition: all .3s; }
+        .step:hover { border-color: rgba(255,255,255,0.1); transform: translateY(-2px); }
+        .step-num { width: 32px; height: 32px; border-radius: 10px; background: linear-gradient(135deg, #fb923c, #ef4444); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; margin: 0 auto 12px; }
+        .step h3 { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+        .step p { font-size: 12px; color: #52525b; line-height: 1.5; }
+        .step-arrow { display: flex; align-items: center; color: #3f3f46; font-size: 20px; font-weight: 300; }
+
+        /* Search */
+        .search-wrap { width: 100%; margin-bottom: 12px; }
+        .search-box { display: flex; gap: 8px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 6px; transition: border-color .3s; }
+        .search-box:focus-within { border-color: rgba(249,115,22,0.3); }
+        .search-input { flex: 1; background: transparent; border: none; outline: none; color: #fff; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 15px; padding: 14px 16px; }
+        .search-input::placeholder { color: #3f3f46; }
+        .scan-btn { padding: 14px 28px; border-radius: 12px; border: none; background: linear-gradient(135deg, #fb923c, #ef4444); color: #fff; font-weight: 700; font-size: 15px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all .2s; white-space: nowrap; }
+        .scan-btn:hover { transform: scale(1.02); filter: brightness(1.1); }
+        .scan-btn:active { transform: scale(0.98); }
+        .scan-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+        .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin .6s linear infinite; display: inline-block; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .quick-tokens { display: flex; align-items: center; gap: 8px; padding: 8px 4px; font-size: 12px; color: #3f3f46; }
+        .quick-btn { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 4px 12px; color: #71717a; font-family: monospace; font-size: 12px; cursor: pointer; transition: all .2s; }
+        .quick-btn:hover { color: #fff; border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); }
+
+        /* Error */
+        .error-card { width: 100%; display: flex; gap: 12px; align-items: flex-start; padding: 16px 20px; background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.15); border-radius: 14px; margin-bottom: 16px; }
+        .error-card strong { color: #ef4444; font-size: 14px; }
+        .error-card p { color: #fca5a5; font-size: 13px; margin-top: 2px; }
+
+        /* Loading */
+        .loading-card { width: 100%; text-align: center; padding: 48px 20px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; }
+        .loading-spinner { width: 40px; height: 40px; border: 3px solid rgba(249,115,22,0.2); border-top-color: #f97316; border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 16px; }
+        .loading-card p { color: #71717a; font-size: 14px; }
+        .loading-sub { font-size: 12px !important; color: #3f3f46 !important; margin-top: 6px; }
+
+        /* Results */
+        .results { width: 100%; opacity: 0; transform: translateY(16px); transition: all .6s cubic-bezier(.16,1,.3,1); }
+        .results-show { opacity: 1; transform: translateY(0); }
+
+        /* Score card */
+        .score-card { position: relative; overflow: hidden; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 24px; padding: 36px; margin-bottom: 24px; }
+        .score-card-glow { position: absolute; top: -60px; right: -60px; width: 200px; height: 200px; border-radius: 50%; filter: blur(80px); opacity: 0.12; }
+        .score-card-body { position: relative; z-index: 1; display: flex; align-items: center; gap: 36px; flex-wrap: wrap; justify-content: center; }
+        .score-ring { position: relative; width: 180px; height: 180px; flex-shrink: 0; }
+        .score-ring-inner { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .score-num { font-size: 52px; font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums; }
+        .score-label { font-size: 12px; color: #52525b; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; }
+        .score-info { flex: 1; min-width: 200px; text-align: left; }
+        .verdict-badge { display: inline-block; padding: 5px 14px; border-radius: 8px; font-size: 11px; font-weight: 900; letter-spacing: 2px; border: 1px solid; margin-bottom: 12px; }
+        .token-name { font-size: 32px; font-weight: 800; letter-spacing: -1px; margin-bottom: 8px; }
+        .token-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+        .token-symbol { padding: 3px 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 6px; font-size: 13px; font-weight: 700; color: #d4d4d8; }
+        .token-addr { padding: 3px 10px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); border-radius: 6px; font-size: 12px; font-family: monospace; color: #52525b; }
+        .score-hint { font-size: 12px; color: #3f3f46; }
+        .score-bar-wrap { position: relative; z-index: 1; margin-top: 28px; }
+        .score-bar-bg { width: 100%; height: 6px; background: rgba(255,255,255,0.04); border-radius: 100px; overflow: hidden; }
+        .score-bar-fill { height: 100%; border-radius: 100px; animation: grow 1.2s cubic-bezier(.16,1,.3,1) forwards; }
+        @keyframes grow { from { width: 0%; } }
+        .score-bar-labels { display: flex; justify-content: space-between; margin-top: 6px; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+
+        /* Checks */
+        .checks-title { font-size: 12px; font-weight: 700; color: #3f3f46; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 14px; align-self: flex-start; width: 100%; }
+        .checks-grid { width: 100%; display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+        .check-card { display: flex; gap: 14px; align-items: flex-start; padding: 18px 20px; background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.04); border-radius: 16px; animation: slideUp .5s cubic-bezier(.16,1,.3,1) both; transition: all .25s; }
+        .check-card:hover { transform: translateY(-1px); border-color: rgba(255,255,255,0.08); background: rgba(255,255,255,0.025); }
+        @keyframes slideUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+        .check-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; flex-shrink: 0; }
+        .check-pass { background: rgba(34,197,94,0.1); color: #22c55e; border: 1px solid rgba(34,197,94,0.15); }
+        .check-fail { background: rgba(239,68,68,0.1); color: #ef4444; border: 1px solid rgba(239,68,68,0.15); }
+        .check-body { flex: 1; min-width: 0; }
+        .check-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap; }
+        .check-emoji { font-size: 15px; }
+        .check-header h4 { font-size: 15px; font-weight: 700; }
+        .sev { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: 1.5px; padding: 2px 8px; border-radius: 6px; }
+        .sev-high { color: #ef4444; background: rgba(239,68,68,0.1); }
+        .sev-medium { color: #eab308; background: rgba(234,179,8,0.1); }
+        .sev-low { color: #60a5fa; background: rgba(96,165,250,0.1); }
+        .check-question { font-size: 12px; color: #52525b; font-style: italic; margin-bottom: 4px; }
+        .check-detail { font-size: 13px; color: #a1a1aa; line-height: 1.5; }
+
+        .timestamp { text-align: center; font-size: 11px; color: #27272a; margin-top: 8px; }
+
+        /* Footer */
+        .footer { position: relative; z-index: 1; width: 100%; text-align: center; padding: 28px 20px; border-top: 1px solid rgba(255,255,255,0.03); margin-top: auto; }
+        .footer p { font-size: 12px; color: #3f3f46; }
+        .footer strong { color: #52525b; }
+        .footer-sub { font-size: 11px; color: #27272a; margin-top: 4px; }
+
+        /* Animations */
+        .fade-in { animation: fadeIn .7s cubic-bezier(.16,1,.3,1) both; }
+        .d1 { animation-delay: .1s; }
+        .d2 { animation-delay: .2s; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+
+        /* Selection */
+        ::selection { background: rgba(249,115,22,0.25); color: #fff; }
         ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.06); border-radius: 10px; }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+          .steps { flex-direction: column; }
+          .step-arrow { justify-content: center; transform: rotate(90deg); }
+          .score-card-body { flex-direction: column; text-align: center; }
+          .score-info { text-align: center; }
+          .token-meta { justify-content: center; }
+          .container { padding-top: 32px; }
+        }
       `}</style>
     </main>
   );
