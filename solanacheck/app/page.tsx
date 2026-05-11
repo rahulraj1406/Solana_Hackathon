@@ -30,268 +30,291 @@ export default function Home() {
 
   const verdictConfig = {
     safe: {
-      bg: 'bg-emerald-500/20',
-      border: 'border-emerald-500/40',
+      bg: 'bg-emerald-500/10',
+      border: 'border-emerald-500/30',
       text: 'text-emerald-400',
-      glow: 'shadow-emerald-500/20',
-      badge: 'bg-emerald-500',
+      glow: 'shadow-[0_0_40px_-10px_rgba(16,185,129,0.3)]',
+      badge: 'bg-emerald-500 text-white',
+      progress: 'bg-emerald-400',
     },
     caution: {
-      bg: 'bg-amber-500/20',
-      border: 'border-amber-500/40',
+      bg: 'bg-amber-500/10',
+      border: 'border-amber-500/30',
       text: 'text-amber-400',
-      glow: 'shadow-amber-500/20',
-      badge: 'bg-amber-500',
+      glow: 'shadow-[0_0_40px_-10px_rgba(245,158,11,0.3)]',
+      badge: 'bg-amber-500 text-white',
+      progress: 'bg-amber-400',
     },
     risky: {
-      bg: 'bg-orange-500/20',
-      border: 'border-orange-500/40',
+      bg: 'bg-orange-500/10',
+      border: 'border-orange-500/30',
       text: 'text-orange-400',
-      glow: 'shadow-orange-500/20',
-      badge: 'bg-orange-500',
+      glow: 'shadow-[0_0_40px_-10px_rgba(249,115,22,0.3)]',
+      badge: 'bg-orange-500 text-white',
+      progress: 'bg-orange-400',
     },
     danger: {
-      bg: 'bg-red-500/20',
-      border: 'border-red-500/40',
+      bg: 'bg-red-500/10',
+      border: 'border-red-500/30',
       text: 'text-red-400',
-      glow: 'shadow-red-500/20',
-      badge: 'bg-red-500',
+      glow: 'shadow-[0_0_40px_-10px_rgba(239,68,68,0.3)]',
+      badge: 'bg-red-500 text-white',
+      progress: 'bg-red-500',
     },
   };
 
   const severityColors = {
-    high: 'text-red-400',
-    medium: 'text-amber-400',
-    low: 'text-blue-400',
+    high: 'text-red-400 bg-red-500/10 border-red-500/20',
+    medium: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
+    low: 'text-blue-400 bg-blue-500/10 border-blue-500/20',
   };
 
   return (
-    <main className="min-h-screen bg-[#0a0a0f] text-white relative overflow-hidden">
-      {/* Animated background gradients */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-purple-600/8 rounded-full blur-[120px] animate-pulse" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-cyan-600/8 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '2s' }} />
-        <div className="absolute top-[40%] right-[20%] w-[300px] h-[300px] bg-blue-600/5 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: '4s' }} />
+    <main className="min-h-screen bg-[#05050A] text-white relative flex flex-col items-center justify-center p-4 sm:p-8 overflow-x-hidden font-sans">
+      {/* Dynamic Animated Background Mesh */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden flex items-center justify-center">
+        <div className="absolute top-[10%] left-[20%] w-[600px] h-[600px] bg-purple-700/10 rounded-full blur-[140px] animate-blob" />
+        <div className="absolute top-[30%] right-[20%] w-[500px] h-[500px] bg-blue-700/10 rounded-full blur-[140px] animate-blob animation-delay-2000" />
+        <div className="absolute bottom-[10%] left-[40%] w-[700px] h-[700px] bg-emerald-700/10 rounded-full blur-[140px] animate-blob animation-delay-4000" />
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150 mix-blend-overlay" />
       </div>
 
-      {/* Grid pattern overlay */}
-      <div className="fixed inset-0 pointer-events-none opacity-[0.03]" style={{
-        backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
-        backgroundSize: '60px 60px',
-      }} />
-
-      <div className="relative z-10 max-w-3xl mx-auto px-6 py-12">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-zinc-400 mb-6 backdrop-blur-sm">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            Powered by Solana Mainnet via Helius RPC
+      <div className="relative w-full max-w-4xl mx-auto flex flex-col items-center z-10 animate-fade-in-up">
+        
+        {/* Header Section */}
+        <div className="text-center mb-10 w-full flex flex-col items-center">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-zinc-400 mb-8 backdrop-blur-md shadow-xl transition-all hover:bg-white/10">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+            </span>
+            Live on Solana Mainnet via Helius RPC
           </div>
-          <h1 className="text-5xl sm:text-6xl font-bold mb-4 bg-gradient-to-r from-white via-purple-200 to-cyan-200 bg-clip-text text-transparent">
+          
+          <h1 className="text-5xl sm:text-7xl font-extrabold tracking-tight mb-6 bg-gradient-to-br from-white via-zinc-200 to-zinc-500 bg-clip-text text-transparent drop-shadow-2xl">
             SolanaCheck
           </h1>
-          <p className="text-lg text-zinc-400 max-w-lg mx-auto leading-relaxed">
-            Paste any Solana token address. Get instant rug-pull risk analysis
-            powered by real on-chain data.
+          <p className="text-lg sm:text-xl text-zinc-400 max-w-2xl text-center leading-relaxed font-light">
+            Instant rug-pull risk analysis. Paste any SPL token address below to uncover hidden on-chain risks.
           </p>
         </div>
 
-        {/* Search input */}
-        <div className="relative mb-10">
-          <div className="flex gap-3">
+        {/* Main Glass Panel */}
+        <div className="w-full bg-zinc-900/40 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 sm:p-10 shadow-2xl">
+          
+          {/* Input Area */}
+          <div className="relative flex flex-col sm:flex-row gap-4 mb-4">
             <div className="relative flex-1 group">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600/30 to-cyan-600/30 rounded-xl blur opacity-0 group-focus-within:opacity-100 transition duration-500" />
+              <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-blue-600 rounded-2xl blur-md opacity-25 group-focus-within:opacity-50 transition duration-500" />
               <input
                 id="mint-input"
                 value={mint}
                 onChange={(e) => setMint(e.target.value.trim())}
                 onKeyDown={handleKeyDown}
                 placeholder="Enter token mint address..."
-                className="relative w-full px-5 py-4 bg-white/5 border border-white/10 rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500/50 transition-all duration-300 font-mono text-sm backdrop-blur-sm"
+                className="relative w-full px-6 py-5 bg-black/40 border border-white/10 rounded-2xl text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500/50 transition-all duration-300 font-mono text-base sm:text-lg shadow-inner"
               />
             </div>
             <button
-              id="check-button"
               onClick={check}
               disabled={loading || !mint}
-              className="relative px-8 py-4 rounded-xl font-semibold text-sm disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-300 overflow-hidden group"
+              className="relative w-full sm:w-auto px-10 py-5 rounded-2xl font-bold text-white shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] overflow-hidden group bg-white/5 border border-white/10 hover:border-white/20"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-cyan-600 transition-all duration-300 group-hover:from-purple-500 group-hover:to-cyan-500" />
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-cyan-600 blur-xl opacity-50 group-hover:opacity-80 transition-opacity duration-300" />
-              <span className="relative z-10">
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 opacity-80 group-hover:opacity-100 transition-opacity duration-300" />
+              <span className="relative z-10 flex items-center justify-center gap-3 text-lg">
                 {loading ? (
-                  <span className="flex items-center gap-2">
-                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <>
+                    <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                     </svg>
-                    Analyzing
-                  </span>
-                ) : (
-                  'Check Token'
-                )}
+                    Analyzing...
+                  </>
+                ) : 'Analyze Token'}
               </span>
             </button>
           </div>
 
-          {/* Quick test addresses */}
-          <div className="flex flex-wrap gap-2 mt-3">
-            <span className="text-xs text-zinc-600">Try:</span>
-            <button
-              onClick={() => setMint('EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v')}
-              className="text-xs text-zinc-500 hover:text-purple-400 transition-colors cursor-pointer font-mono"
-            >
-              USDC
-            </button>
-            <span className="text-zinc-700">·</span>
-            <button
-              onClick={() => setMint('DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263')}
-              className="text-xs text-zinc-500 hover:text-purple-400 transition-colors cursor-pointer font-mono"
-            >
-              BONK
-            </button>
+          {/* Quick test buttons */}
+          <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-zinc-500">
+            <span>Test a token:</span>
+            <button onClick={() => setMint('EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v')} className="px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/20 transition-all font-mono text-xs text-zinc-300">USDC (Safe)</button>
+            <button onClick={() => setMint('DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263')} className="px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/20 transition-all font-mono text-xs text-zinc-300">BONK (Test)</button>
           </div>
-        </div>
 
-        {/* Error */}
-        {error && (
-          <div id="error-display" className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl backdrop-blur-sm">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0">
-                <span className="text-red-400">✕</span>
+          {/* Error State */}
+          {error && (
+            <div className="mt-8 p-5 bg-red-500/10 border border-red-500/20 rounded-2xl animate-fade-in flex items-start gap-4">
+              <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0 text-red-400">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
               </div>
-              <p className="text-red-300 text-sm">{error}</p>
+              <div>
+                <h3 className="text-red-400 font-semibold mb-1">Analysis Failed</h3>
+                <p className="text-red-300/80 text-sm">{error}</p>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Loading skeleton */}
-        {loading && (
-          <div className="space-y-4 animate-pulse">
-            <div className="h-40 bg-white/5 border border-white/10 rounded-2xl" />
-            <div className="space-y-3">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="h-20 bg-white/5 border border-white/10 rounded-xl" />
-              ))}
+          {/* Loading Skeleton */}
+          {loading && (
+            <div className="mt-10 space-y-6 animate-pulse">
+              <div className="h-48 bg-white/5 rounded-3xl" />
+              <div className="grid grid-cols-1 gap-4">
+                {[1, 2, 3].map((i) => <div key={i} className="h-24 bg-white/5 rounded-2xl" />)}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Results */}
-        {report && !loading && (
-          <div className="space-y-5 animate-in">
-            {/* Score card */}
-            <div className={`relative p-8 rounded-2xl border backdrop-blur-sm ${verdictConfig[report.verdict].bg} ${verdictConfig[report.verdict].border} shadow-2xl ${verdictConfig[report.verdict].glow}`}>
-              <div className="flex items-start justify-between">
-                <div>
-                  <h2 id="token-name" className="text-2xl font-bold mb-1">
-                    {report.name ?? report.symbol ?? 'Unknown Token'}
-                  </h2>
-                  <p className="text-sm text-zinc-400 font-mono">
-                    {report.mint.slice(0, 12)}…{report.mint.slice(-8)}
-                  </p>
-                  {report.symbol && (
-                    <span className="inline-block mt-2 px-3 py-1 text-xs font-medium bg-white/10 rounded-full text-zinc-300">
-                      ${report.symbol}
-                    </span>
-                  )}
+          {/* Report Results */}
+          {report && !loading && (
+            <div className="mt-10 space-y-8 animate-fade-in-up">
+              
+              {/* Main Score Card */}
+              <div className={`relative overflow-hidden rounded-3xl border p-8 sm:p-10 transition-all duration-500 ${verdictConfig[report.verdict].bg} ${verdictConfig[report.verdict].border} ${verdictConfig[report.verdict].glow}`}>
+                <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
+                  <svg className="w-48 h-48" viewBox="0 0 24 24" fill="currentColor">
+                    {report.verdict === 'safe' && <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>}
+                    {(report.verdict === 'caution' || report.verdict === 'risky') && <path d="M12 2L1 21h22M12 6l7.5 13h-15M11 10h2v5h-2m0 2h2v2h-2"/>}
+                    {report.verdict === 'danger' && <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>}
+                  </svg>
                 </div>
-                <div className="text-right">
-                  <div className={`inline-block px-5 py-2 rounded-xl text-sm font-bold text-white ${verdictConfig[report.verdict].badge} shadow-lg`}>
-                    {report.verdict.toUpperCase()}
+
+                <div className="relative z-10 flex flex-col sm:flex-row items-center sm:items-start justify-between gap-8">
+                  <div className="text-center sm:text-left flex-1">
+                    <h2 className="text-4xl font-extrabold mb-2 tracking-tight">
+                      {report.name ?? report.symbol ?? 'Unknown Token'}
+                    </h2>
+                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 mb-4">
+                      {report.symbol && (
+                        <span className="px-3 py-1 bg-white/10 rounded-lg text-sm font-bold tracking-wider">
+                          ${report.symbol}
+                        </span>
+                      )}
+                      <span className="text-sm text-zinc-400 font-mono bg-black/20 px-3 py-1 rounded-lg">
+                        {report.mint.slice(0, 8)}...{report.mint.slice(-8)}
+                      </span>
+                    </div>
                   </div>
-                  <div className="mt-3">
-                    <span className="text-5xl font-black tabular-nums">{report.score}</span>
-                    <span className="text-xl text-zinc-500 font-medium">/100</span>
+
+                  <div className="flex flex-col items-center sm:items-end">
+                    <div className={`px-6 py-2 rounded-xl text-sm font-black tracking-widest uppercase shadow-lg mb-4 ${verdictConfig[report.verdict].badge}`}>
+                      {report.verdict}
+                    </div>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-7xl font-black tabular-nums tracking-tighter">{report.score}</span>
+                      <span className="text-2xl text-zinc-500 font-bold">/100</span>
+                    </div>
+                    <p className="text-xs font-medium text-zinc-500 uppercase tracking-widest mt-2">Risk Score</p>
                   </div>
-                  <p className="text-xs text-zinc-500 mt-1">Risk Score (lower = safer)</p>
+                </div>
+
+                {/* Score Progress Bar */}
+                <div className="relative mt-10 z-10">
+                  <div className="w-full h-3 bg-black/40 rounded-full overflow-hidden backdrop-blur-md border border-white/5">
+                    <div
+                      className={`h-full rounded-full transition-all duration-1500 ease-out ${verdictConfig[report.verdict].progress}`}
+                      style={{ width: \`\${Math.max(5, report.score)}%\` }}
+                    />
+                  </div>
+                  <div className="flex justify-between mt-3 text-[10px] sm:text-xs font-bold text-zinc-500 uppercase tracking-widest">
+                    <span className="text-emerald-500/70">Safe (0-19)</span>
+                    <span className="text-red-500/70">Danger (70+)</span>
+                  </div>
                 </div>
               </div>
 
-              {/* Score bar */}
-              <div className="mt-6">
-                <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full rounded-full transition-all duration-1000 ease-out ${verdictConfig[report.verdict].badge}`}
-                    style={{ width: `${report.score}%` }}
-                  />
-                </div>
-                <div className="flex justify-between mt-1.5 text-[10px] text-zinc-600">
-                  <span>SAFE</span>
-                  <span>CAUTION</span>
-                  <span>RISKY</span>
-                  <span>DANGER</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Risk checks */}
-            <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-zinc-400 uppercase tracking-wider px-1">
-                Risk Analysis · {report.checks.length} Checks
-              </h3>
-              {report.checks.map((c, i) => (
-                <div
-                  key={c.id}
-                  className={`p-5 rounded-xl border backdrop-blur-sm transition-all duration-300 hover:scale-[1.01] ${
-                    c.passed
-                      ? 'border-emerald-500/20 bg-emerald-500/5 hover:bg-emerald-500/10'
-                      : 'border-red-500/20 bg-red-500/5 hover:bg-red-500/10'
-                  }`}
-                  style={{ animationDelay: `${i * 100}ms` }}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold ${
-                        c.passed ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'
-                      }`}>
-                        {c.passed ? '✓' : '✕'}
-                      </div>
-                      <div>
-                        <span className="font-semibold text-sm">{c.label}</span>
-                        <p className="text-xs text-zinc-500 mt-0.5">{c.detail}</p>
+              {/* Detailed Risk Checks */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-bold text-zinc-400 uppercase tracking-widest px-2 mb-6">
+                  On-Chain Analysis Breakdown
+                </h3>
+                <div className="grid grid-cols-1 gap-4">
+                  {report.checks.map((c, i) => (
+                    <div
+                      key={c.id}
+                      className={`relative overflow-hidden p-6 rounded-2xl border backdrop-blur-md transition-all duration-300 hover:scale-[1.01] hover:-translate-y-1 ${
+                        c.passed
+                          ? 'border-emerald-500/20 bg-emerald-500/5 hover:bg-emerald-500/10'
+                          : 'border-red-500/20 bg-red-500/5 hover:bg-red-500/10'
+                      }`}
+                      style={{ animation: `fadeInUp 0.5s ease-out ${i * 0.1}s forwards`, opacity: 0 }}
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="flex items-start gap-4">
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg ${
+                            c.passed ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/20 text-red-400 border border-red-500/20'
+                          }`}>
+                            {c.passed ? (
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7"></path></svg>
+                            ) : (
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            )}
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-lg text-white mb-1">{c.label}</h4>
+                            <p className="text-sm text-zinc-400 leading-relaxed">{c.detail}</p>
+                          </div>
+                        </div>
+                        <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center">
+                          <span className={`text-xs font-black uppercase tracking-widest px-3 py-1.5 rounded-lg border ${severityColors[c.severity]}`}>
+                            {c.severity} RISK
+                          </span>
+                        </div>
                       </div>
                     </div>
-                    <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-white/5 ${severityColors[c.severity]}`}>
-                      {c.severity}
-                    </span>
-                  </div>
+                  ))}
                 </div>
-              ))}
+              </div>
+
+              {/* Footer Timestamp */}
+              <div className="text-center pt-6 border-t border-white/5">
+                <p className="text-xs font-medium text-zinc-600">
+                  Data analyzed on {new Date(report.timestamp).toLocaleString()} directly from Solana Mainnet
+                </p>
+              </div>
+
             </div>
+          )}
+        </div>
 
-            {/* Timestamp */}
-            <p className="text-center text-xs text-zinc-600 pt-2">
-              Analyzed at {new Date(report.timestamp).toLocaleString()} · Data from Solana mainnet
-            </p>
-          </div>
-        )}
-
-        {/* Footer */}
-        <footer className="mt-20 pt-8 border-t border-white/5 text-center">
-          <p className="text-xs text-zinc-600">
-            SolanaCheck · Built for Colosseum Frontier Hackathon 2026 · Open Source
-          </p>
-          <p className="text-[10px] text-zinc-700 mt-2">
-            All data read directly from Solana blockchain. No wallet required. No login. Free forever.
+        {/* Global Footer */}
+        <footer className="mt-12 text-center pb-12 z-10 animate-fade-in">
+          <p className="text-sm text-zinc-500 font-medium">Built for Colosseum Frontier Hackathon 2026</p>
+          <p className="text-xs text-zinc-600 mt-2 flex items-center justify-center gap-2">
+            <span>Free forever</span>
+            <span>&bull;</span>
+            <span>Open Source</span>
+            <span>&bull;</span>
+            <span>No login required</span>
           </p>
         </footer>
       </div>
 
-      <style jsx>{`
-        .animate-in > * {
-          animation: fadeSlideIn 0.4s ease-out forwards;
-          opacity: 0;
-          transform: translateY(10px);
+      <style jsx global>{`
+        @keyframes blob {
+          0% { transform: translate(0px, 0px) scale(1); }
+          33% { transform: translate(30px, -50px) scale(1.1); }
+          66% { transform: translate(-20px, 20px) scale(0.9); }
+          100% { transform: translate(0px, 0px) scale(1); }
         }
-        .animate-in > *:nth-child(1) { animation-delay: 0ms; }
-        .animate-in > *:nth-child(2) { animation-delay: 150ms; }
-        .animate-in > *:nth-child(3) { animation-delay: 300ms; }
-        @keyframes fadeSlideIn {
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+        .animate-blob {
+          animation: blob 10s infinite alternate;
+        }
+        .animation-delay-2000 {
+          animation-delay: 2s;
+        }
+        .animation-delay-4000 {
+          animation-delay: 4s;
+        }
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+          animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .animate-fade-in {
+          animation: fadeInUp 0.5s ease-out forwards;
         }
       `}</style>
     </main>
