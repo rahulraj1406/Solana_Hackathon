@@ -8,10 +8,10 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "SolanaCheck — Instant Rug-Pull Risk Analysis",
+  title: "SolShield — On-Chain Token Intelligence for Solana",
   description:
-    "Paste any Solana token address and get an instant risk score (0-100) with clear reasons. Free, open-source, no login required. Powered by Solana mainnet via Helius RPC.",
-  keywords: ["solana", "rug pull", "token analysis", "crypto safety", "SPL token"],
+    "Detect rug pulls before they happen. Paste any Solana token address and get instant on-chain risk analysis. Free, open-source, no login required.",
+  keywords: ["solana", "rug pull", "token analysis", "crypto safety", "SPL token", "solshield"],
 };
 
 export default function RootLayout({
