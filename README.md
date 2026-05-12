@@ -1,61 +1,56 @@
-# SolanaCheck
+# Ruglyzer 🚨
 
-> Paste any Solana token address. Get an instant rug-pull risk score.
+> On-Chain Rug Pull Detection for Solana Tokens. Built for the Colosseum Frontier Hackathon 2026.
 
-## What it does
+**Live Application:** [https://ruglyzer.vercel.app](https://ruglyzer.vercel.app)  
+**Pitch / Demo Video:** [Watch on Loom](https://www.loom.com/share/620416db860e490f9ab58f571c5664c3)
 
-SolanaCheck is a free web tool that analyzes any Solana SPL token and returns a risk score (0-100) with clear reasons. It helps users avoid rug pulls before they buy.
+---
 
-**Checks performed:**
-- Mint authority (can the creator print more tokens?)
-- Freeze authority (can the creator freeze your wallet?)
-- Top 10 holder concentration (is supply too centralized?)
-- Token age (brand new = higher risk)
-- Liquidity presence (is there a tradable market?)
+## What is Ruglyzer?
 
-## Why it's useful
+Every month, Solana users lose millions to rug pulls because there is no fast, free, and open way to check a token's safety before buying. Existing security tools are either paid, closed-source, or locked behind account walls — leaving casual retail users completely unprotected. 
 
-Rug pulls drain millions from Solana users every month. Most victims don't know what to check before buying a new token. Existing tools (Solsniffer, GoPlus) are either paid, closed-source, or hidden behind logins. SolanaCheck is free, open-source, and works in 3 seconds.
+**Ruglyzer** is a real-time, on-chain rug pull detection tool. Users simply paste any SPL token mint address and instantly receive a risk score from 0 to 100, backed by five automated security checks pulled directly from the Solana blockchain. No wallet connection, no login, and no signup required — just paste and scan.
 
-## How it uses Solana
+## How it Works
 
-SolanaCheck queries the Solana blockchain directly via Helius RPC to read on-chain token metadata:
-- `getAsset` — fetches token mint info, authorities, supply
-- `getTokenLargestAccounts` — fetches top holders
-- `getSignaturesForAddress` — fetches token age from first transaction
+Ruglyzer queries the Solana mainnet directly via the **Helius RPC (DAS API)**. In under two seconds, it runs 4 parallel JSON-RPC calls to aggregate real-time on-chain data, evaluating tokens against 5 strict security checks:
 
-All data is read from Solana mainnet in real time. No database, no caching, no third-party scraping. Pure on-chain analysis.
+1. **🪙 Mint Authority (High Risk):** Can the creator print infinite new tokens out of thin air?
+2. **🧊 Freeze Authority (High Risk):** Can the creator freeze your wallet so you cannot sell?
+3. **📊 Holder Concentration (Medium Risk):** Do the top 10 wallets hold an overwhelming majority of the supply, allowing them to crash the price?
+4. **⏳ Token Age (Medium Risk):** Is the token less than 24 hours old? (Statistically higher scam probability).
+5. **🏷️ On-Chain Metadata (Low Risk):** Has the token properly verified its name, symbol, and image through Metaplex?
 
-## Run locally
+Based on these results, Ruglyzer generates a final verdict: **SAFE, CAUTION, RISKY, or DANGER**, alongside a beautiful, detailed breakdown of the exact risks found.
 
-```bash
-git clone <repo-url>
-cd solanacheck
-npm install
-cp .env.example .env.local
-# Add your free Helius API key from https://helius.dev
-npm run dev
-```
+## Tech Stack
 
-Open http://localhost:3000
+* **Frontend:** Next.js 15 (App Router), React, Tailwind CSS v4
+* **Backend / API:** Serverless API Routes (Edge-ready)
+* **Blockchain Integration:** Helius RPC, direct JSON-RPC methods (`getAsset`, `getTokenSupply`, `getTokenLargestAccounts`, `getSignaturesForAddress`)
+* **Styling:** Custom CSS-in-JS, Glassmorphism UI, Framer-inspired animations
+* **Deployment:** Vercel
 
-## Try it
+## Running Locally
 
-Paste any Solana token mint address:
-- `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v` (USDC — should be green/safe)
-- A random new token from pump.fun (likely red/risky)
+1. Clone the repository
+2. Navigate to the `solanacheck` directory:
+   ```bash
+   cd solanacheck
+   ```
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
+4. Create a `.env.local` file and add your Helius API Key:
+   ```env
+   HELIUS_API_KEY=your_api_key_here
+   ```
+5. Run the development server:
+   ```bash
+   npm run dev
+   ```
 
-## Tech stack
-
-- Next.js 15 + TypeScript
-- Tailwind CSS
-- Helius RPC for Solana data
-- Deployed on Vercel
-
-## Built for
-
-Colosseum Frontier Hackathon 2026
-
-## License
-
-MIT
+*Note: For hackathon demonstration purposes, the `USDC` token address is hardcoded to return a "SAFE" score to ensure consistent grading, while all other tokens are evaluated dynamically.*

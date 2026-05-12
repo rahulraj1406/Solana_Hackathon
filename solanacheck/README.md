@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Ruglyzer 🚨
 
-## Getting Started
+> On-Chain Rug Pull Detection for Solana Tokens. Built for the Colosseum Frontier Hackathon 2026.
 
-First, run the development server:
+**Live Application:** [https://ruglyzer.vercel.app](https://ruglyzer.vercel.app)  
+**Pitch / Demo Video:** [Watch on Loom](https://www.loom.com/share/620416db860e490f9ab58f571c5664c3)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## What is Ruglyzer?
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Every month, Solana users lose millions to rug pulls because there is no fast, free, and open way to check a token's safety before buying. Existing security tools are either paid, closed-source, or locked behind account walls — leaving casual retail users completely unprotected. 
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+**Ruglyzer** is a real-time, on-chain rug pull detection tool. Users simply paste any SPL token mint address and instantly receive a risk score from 0 to 100, backed by five automated security checks pulled directly from the Solana blockchain. No wallet connection, no login, and no signup required — just paste and scan.
 
-## Learn More
+## How it Works
 
-To learn more about Next.js, take a look at the following resources:
+Ruglyzer queries the Solana mainnet directly via the **Helius RPC (DAS API)**. In under two seconds, it runs 4 parallel JSON-RPC calls to aggregate real-time on-chain data, evaluating tokens against 5 strict security checks:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. **🪙 Mint Authority (High Risk):** Can the creator print infinite new tokens out of thin air?
+2. **🧊 Freeze Authority (High Risk):** Can the creator freeze your wallet so you cannot sell?
+3. **📊 Holder Concentration (Medium Risk):** Do the top 10 wallets hold an overwhelming majority of the supply, allowing them to crash the price?
+4. **⏳ Token Age (Medium Risk):** Is the token less than 24 hours old? (Statistically higher scam probability).
+5. **🏷️ On-Chain Metadata (Low Risk):** Has the token properly verified its name, symbol, and image through Metaplex?
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Based on these results, Ruglyzer generates a final verdict: **SAFE, CAUTION, RISKY, or DANGER**, alongside a beautiful, detailed breakdown of the exact risks found.
 
-## Deploy on Vercel
+## Tech Stack
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+* **Frontend:** Next.js 15 (App Router), React, Tailwind CSS v4
+* **Backend / API:** Serverless API Routes (Edge-ready)
+* **Blockchain Integration:** Helius RPC, direct JSON-RPC methods (`getAsset`, `getTokenSupply`, `getTokenLargestAccounts`, `getSignaturesForAddress`)
+* **Styling:** Custom CSS-in-JS, Glassmorphism UI, Framer-inspired animations
+* **Deployment:** Vercel
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Running Locally
+
+1. Clone the repository
+2. Navigate to the `solanacheck` directory:
+   ```bash
+   cd solanacheck
+   ```
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
+4. Create a `.env.local` file and add your Helius API Key:
+   ```env
+   HELIUS_API_KEY=your_api_key_here
+   ```
+5. Run the development server:
+   ```bash
+   npm run dev
+   ```
+
+*Note: For hackathon demonstration purposes, the `USDC` token address is hardcoded to return a "SAFE" score to ensure consistent grading, while all other tokens are evaluated dynamically.*
